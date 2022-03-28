@@ -6,6 +6,8 @@ import androidx.room.Room
 import database.CrimeDatabase
 import java.lang.IllegalStateException
 import java.util.*
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 /* 5. Класс репозитория инкапсулирует логику для доступа к данным из источника/ков. Он определяет как
 захватить и хранить определенный набор данных - локально, в БД или с удаленного сервера. Наш UI код
@@ -40,14 +42,30 @@ class CrimeRepository private constructor (context: Context) {
 
 
        // Репозиторий вызывает функции через интерфейс crimeDao
-    private val  crimeDao = database.crimeDao()                   // храним ссылку на интерфейс DAO
+
+                         // храним ссылку на интерфейс DAO
+    private val  crimeDao = database.crimeDao()
+                         // Функция вернет экземпляр исполнителся указывющий на новый поток
+    private val executor = Executors.newSingleThreadExecutor()
+
+
+      /* Как updateCrime так и addCrime оборачивают вызовы в Dao внутри блока execute{ }.
+                 Он выталкиват эти операции из основного потока чобы не блокировать работу UI
+       */
 
            // вернет список преступлений
     fun getCrimes (): LiveData<List<Crime>> = crimeDao.getCrimes()
             // вернет конкретное преступление
     fun getCrime (id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 
-
+                         // обновит переданное перступление
+    fun updateCrime (crime: Crime) {
+        executor.execute { crimeDao.updateCrime(crime) }
+    }
+                // добавит новое преступление
+    fun addCrime (crime: Crime) {
+        executor.execute { crimeDao.addCrime(crime) }
+    }
 
 
     /* Синглтон - его единственный экз, живет пока приложение находится в памяти. Он не подходит для

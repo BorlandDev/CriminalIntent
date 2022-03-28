@@ -25,7 +25,7 @@ class CrimeFragment: Fragment() {
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox // Раскрыто ли ?
 
-    private val crimeDetailViewModel by lazy {
+    private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeDetailViewModel::class.java)
     }   // Получаем ссылку на вью модель
 
@@ -38,7 +38,11 @@ class CrimeFragment: Fragment() {
 
         // получаем данные о выбраном преступлении в списке из базы данных
         val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
-    }
+
+        // загружаем преступление
+        crimeDetailViewModel.loadCrime(crimeId)
+
+     }
 
 
 
@@ -93,7 +97,7 @@ class CrimeFragment: Fragment() {
         val titleWatcher = object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int
-            ) { TODO("") }
+            ) { }
 
                 override fun onTextChanged(
                 sequence: CharSequence?,
@@ -104,10 +108,8 @@ class CrimeFragment: Fragment() {
      // преобразует ввод пользователя из CharSequence в String - используется для задания заголовка Crime
             crime.title = sequence.toString() }
 
-            override fun afterTextChanged(sequance: Editable?) {
-                TODO("Not yet implemented") }
+            override fun afterTextChanged(sequance: Editable?) { }
         }
-
 
                 // слушатель для EditText
         titleField.addTextChangedListener(titleWatcher)
@@ -123,12 +125,21 @@ class CrimeFragment: Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+
+            // при закрытии фрагмента сохраняем введенный текст
+        crimeDetailViewModel.saveCrime(crime)
+    }
 
     private fun updateUI () {
 
         titleField.setText(crime.title)
         dateButton.text = crime.date.toString()
-        solvedCheckBox.isChecked = crime.isSolved
+        solvedCheckBox.apply {
+            isChecked = crime.isSolved
+            jumpDrawablesToCurrentState()
+        }
     }
 
 

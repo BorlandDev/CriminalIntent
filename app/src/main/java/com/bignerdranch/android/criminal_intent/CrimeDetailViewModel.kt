@@ -24,4 +24,9 @@ class CrimeDetailViewModel: ViewModel() {
         crimeIdLiveData.value = crimeId
     }
 
+    // сохраняем текст введенный в EditText, в базу данных, обновляя заголовок преступления
+    fun saveCrime (crime: Crime) {
+        crimeRepository.updateCrime(crime)
+    }
+
 }
