@@ -3,9 +3,7 @@ package com.bignerdranch.android.criminal_intent
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -14,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
+import java.util.zip.Inflater
 
 
 private const val TAG = "CrimeListFragment"
@@ -39,9 +38,7 @@ class CrimeListFragment: Fragment() {
 
 
 
-    companion object { // Инкапуслируем получение нашего фрагмента , для активити и пр.
-        fun newInstance(): CrimeListFragment = CrimeListFragment()
-    }
+
 
     // Вызывается когда фрагмент прикрепляется к активити
     override fun onAttach(context: Context) {
@@ -50,6 +47,15 @@ class CrimeListFragment: Fragment() {
         // context в данном случае == activity, обратный вызов будет идти именно в активити
         callbacks = context as Callbacks?
     }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
+    }
+
+
 
 
     override fun onCreateView(
@@ -74,6 +80,12 @@ class CrimeListFragment: Fragment() {
 
         return view
     }
+
+
+
+
+
+
 
 
     override fun onViewCreated (view: View, savedInstanceState: Bundle?) {
@@ -103,8 +115,12 @@ class CrimeListFragment: Fragment() {
                     updateUI(crimes)
                 }
             })
-
     }
+
+
+
+
+
 
     override fun onDetach() {
         super.onDetach()
@@ -112,6 +128,33 @@ class CrimeListFragment: Fragment() {
         // после отсоединения фрагмента от активити, обратный вызов нам больше не нужен
         callbacks = null
     }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        //
+        inflater.inflate(R.menu.fragment_crime_list, menu)
+
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+
+            R.id.new_crime -> {
+                val crime = Crime()
+                crimeListViewModel.addCrime(crime)
+                callbacks?.onCrimeSelected(crime.id)
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+
+        }
+
+    }
+
 
 
 
@@ -123,6 +166,13 @@ class CrimeListFragment: Fragment() {
         // устанавливаем адаптер в ресайклер
         crimeRecyclerView.adapter = adapter
     }
+
+
+
+
+
+
+
 
 
 
@@ -171,6 +221,8 @@ class CrimeListFragment: Fragment() {
 
 
 
+
+
     /* Сам ресайклер ничего не знает об обькте преступления (Crime) или перечне перступлений которые будут отображаться,
        зато знает Адаптер. Он является прослойкой между RecycleView и данными которые тот должен отображать.
         Адаптер поставляет заполненые вьюХолдеры (контейнеры для наших данных)
@@ -207,6 +259,11 @@ class CrimeListFragment: Fragment() {
     }
 
 
+
+
+    companion object { // Инкапуслируем получение нашего фрагмента , для активити и пр.
+        fun newInstance(): CrimeListFragment = CrimeListFragment()
+    }
 
 
 }
