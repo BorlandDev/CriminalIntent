@@ -9,15 +9,21 @@ import java.util.*
 class CrimeDetailViewModel: ViewModel() {
 
     private val crimeRepository = CrimeRepository.get()
-    private val crimeIdLiveData = MutableLiveData <UUID> () // Храним преступление полученное из БД
 
+    // Храним преступление полученное из БД возвращенное функцией loadCrime
+    private val crimeIdLiveData = MutableLiveData <UUID> ()
 
-        // Transformations ........
+    // Transformations ........
     var crimeLiveData: LiveData <Crime?> =
 
         Transformations.switchMap (crimeIdLiveData) { crimeId ->
             crimeRepository.getCrime(crimeId)
         }
+
+
+
+
+
 
     // определяет какое преступление нужно вывести на экран
     fun loadCrime (crimeId: UUID) {

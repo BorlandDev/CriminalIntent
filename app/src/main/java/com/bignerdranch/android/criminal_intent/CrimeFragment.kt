@@ -17,8 +17,10 @@ import androidx.lifecycle.Observer
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
-class CrimeFragment: Fragment() {
+class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
 
     private lateinit var crime: Crime  // Храним преступления
     private lateinit var titleField: EditText // Заголовок преступления
@@ -56,12 +58,6 @@ class CrimeFragment: Fragment() {
 
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
-
-        dateButton.apply {
-            text = crime.date.toString() // ставим в атрибут кнопки text - текущую дату , переводя в строку
-            isEnabled = false // блокировка кнопки
-        }
-
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
 
         return view
@@ -90,40 +86,61 @@ class CrimeFragment: Fragment() {
 
 
 
+
+
+
+
     override fun onStart() {
         super.onStart()
 
         // создаем анонимный класс реализующий интерфейс TextWatcher (Слушатель/наблюдатель)
         val titleWatcher = object : TextWatcher {
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int
-            ) { }
+            override fun beforeTextChanged(
+                s: CharSequence?, start: Int, count: Int, after: Int
+            ) {
+            }
 
-                override fun onTextChanged(
+            override fun onTextChanged(
                 sequence: CharSequence?,
                 start: Int,
                 before: Int,
-                count: Int) {
+                count: Int
+            ) {
 
-     // преобразует ввод пользователя из CharSequence в String - используется для задания заголовка Crime
-            crime.title = sequence.toString() }
+                // преобразует ввод пользователя из CharSequence в String - используется для задания заголовка Crime
+                crime.title = sequence.toString()
+            }
 
-            override fun afterTextChanged(sequance: Editable?) { }
+            override fun afterTextChanged(sequance: Editable?) {}
         }
 
-                // слушатель для EditText
+        // слушатель для EditText
         titleField.addTextChangedListener(titleWatcher)
 
         // слушатель для CheckBox
         solvedCheckBox.apply {
 
-            setOnCheckedChangeListener { _ , isChecked ->  // оператор _ , заменяет неиспользуемый параметр в лямбде
+            setOnCheckedChangeListener { _, isChecked ->  // оператор _ , заменяет неиспользуемый параметр в лямбде
 
                 crime.isSolved = isChecked
                 // изменяем поле Решено в нашем преступлении
             }
         }
+
+        dateButton.setOnClickListener {
+            DatePickerFragment.newInstance(crime.date).apply {
+
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
+            }
+        }   /* Конструкция this@CrimeFragment необходима для вызова функции requireFragmentManager
+                 из CrimeFragment, а не из DatePickerFragment. Он ссылается на DatePickerFragment
+                внутри блока apply, поэтому необходимо указать this из внешней области видимости. */
     }
+
+
+
 
     override fun onStop() {
         super.onStop()
@@ -131,6 +148,13 @@ class CrimeFragment: Fragment() {
             // при закрытии фрагмента сохраняем введенный текст
         crimeDetailViewModel.saveCrime(crime)
     }
+
+    override fun onDateSelected (date: Date) {
+        crime.date = date
+        updateUI()
+    }
+
+
 
     private fun updateUI () {
 
@@ -141,6 +165,10 @@ class CrimeFragment: Fragment() {
             jumpDrawablesToCurrentState()
         }
     }
+
+
+
+
 
 
     /*  Инкапсулируем получение экземпляра фрагмента с помощью статической функции, которая создает
@@ -157,9 +185,7 @@ class CrimeFragment: Fragment() {
             return CrimeFragment().apply {
                 arguments = args  // присоединяем пакет аргументов в свойство Fragment-та
             }
-
         }
-
     }
 
 
