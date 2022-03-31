@@ -14,12 +14,15 @@ class MainActivity : AppCompatActivity() , CrimeListFragment.Callbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val currentFragment = // находим фрагмент через айдишку контейнера, запрашивая ее у менеджера фрагментов
-            supportFragmentManager.findFragmentById(R.id.fragment_container) // если фрагмен уже существовал - вернется
-                                                                             // его экземпляр
+        /* Находим фрагмент через айдишку контейнера, запрашивая ее у менеджера фрагментов.
+                Если фрагмен уже существовал - вернется его экземпляр */
+        val currentFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment_container)
 
+
+        // создание экземпляра нашего фрагмента (если до этого он не существовал)
         if (currentFragment == null) {
-            val fragment = CrimeListFragment.newInstance() // CrimeFragment()  // создание экземпляра нашего фрагмента (если до этого он не существовал)
+            val fragment = CrimeListFragment.newInstance()
 
             // создает и закрпляет транзакцию фрагмента
             supportFragmentManager
@@ -28,6 +31,10 @@ class MainActivity : AppCompatActivity() , CrimeListFragment.Callbacks {
                 .commit()
         }
     }
+
+
+
+
 
     override fun onCrimeSelected(crimeId: UUID) {
 

@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import view_models.CrimeListViewModel
 import java.util.*
-import java.util.zip.Inflater
 
 
 private const val TAG = "CrimeListFragment"
@@ -52,6 +52,7 @@ class CrimeListFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // явно указываем фрагмент менеджеру вызвывать функию обртаного вызова
         setHasOptionsMenu(true)
     }
 
@@ -130,24 +131,30 @@ class CrimeListFragment: Fragment() {
     }
 
 
+    // Вызывается когда возникает необходимость в меню
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        //
+        // запонялем меню
         inflater.inflate(R.menu.fragment_crime_list, menu)
 
     }
 
 
+    // когда пользователь выбирает команду в меню фрагмент получает обратный вызов этой функции
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
+        // реагируем в зависимости от выбора команды в меню
         return when (item.itemId) {
 
             R.id.new_crime -> {
-                val crime = Crime()
-                crimeListViewModel.addCrime(crime)
-                callbacks?.onCrimeSelected(crime.id)
-                true
+                val crime = Crime() // создаем новое преступление
+                crimeListViewModel.addCrime(crime) // добавляем его в базу данных
+
+                callbacks?.onCrimeSelected(crime.id) // уведомляет родительский компонент о том,
+                            // что запрошено добавление нового преступления
+
+                true // флаг - дальнейшая обработка менюшки не требуется
             }
             else -> return super.onOptionsItemSelected(item)
 

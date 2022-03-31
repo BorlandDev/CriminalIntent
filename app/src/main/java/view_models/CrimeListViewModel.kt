@@ -1,7 +1,8 @@
-package com.bignerdranch.android.criminal_intent
+package view_models
 
 import androidx.lifecycle.ViewModel
-
+import com.bignerdranch.android.criminal_intent.Crime
+import com.bignerdranch.android.criminal_intent.CrimeRepository
 
 
 class CrimeListViewModel : ViewModel() {
@@ -15,7 +16,7 @@ class CrimeListViewModel : ViewModel() {
 
 
 
-
+    // Реализация функции на панели приложения главного экрана в меню
     fun addCrime (crime: Crime) {
         crimeRepository.addCrime(crime)
     }

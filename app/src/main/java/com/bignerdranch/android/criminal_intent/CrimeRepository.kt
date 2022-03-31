@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import database.CrimeDatabase
+import database.migration_1_2
 import java.lang.IllegalStateException
 import java.util.*
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 /* 5. Класс репозитория инкапсулирует логику для доступа к данным из источника/ков. Он определяет как
@@ -38,7 +38,7 @@ class CrimeRepository private constructor (context: Context) {
         context.applicationContext, // Для обращения к файловой системе нужен контекст всего приложения
         CrimeDatabase::class.java,  // Ссылка на класс базы которую Room должен создать
         DATABASE_NAME               // Имя базы
-   ).build()
+   ).addMigrations(migration_1_2).build()
 
 
        // Репозиторий вызывает функции через интерфейс crimeDao

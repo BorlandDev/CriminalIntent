@@ -1,9 +1,11 @@
-package com.bignerdranch.android.criminal_intent
+package view_models
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.bignerdranch.android.criminal_intent.Crime
+import com.bignerdranch.android.criminal_intent.CrimeRepository
 import java.util.*
 
 class CrimeDetailViewModel: ViewModel() {
