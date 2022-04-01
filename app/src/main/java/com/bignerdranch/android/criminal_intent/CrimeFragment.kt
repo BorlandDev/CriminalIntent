@@ -166,18 +166,19 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
   //************************************************************************************************
 
     reportButton.setOnClickListener {
-        Intent(Intent.ACTION_SEND).apply {
+       // создание неявного интента
+        Intent (Intent.ACTION_SEND).apply {
             type = "text/plain"
 
-            putExtra(Intent.EXTRA_TEXT, getCrimeReport())
+            putExtra(Intent.EXTRA_TEXT, getCrimeReport()) // Пакуем отчет с форматной строкой.
 
             putExtra(
-                Intent.EXTRA_SUBJECT,
+                Intent.EXTRA_SUBJECT, // Тема писльма
                 getString(R.string.crime_report_subject))
 
         }.also { intent ->
 
-            val chooserIntent =
+            val chooserIntent = //
                 Intent.createChooser(intent, getString(R.string.send_report))
 
             startActivity(chooserIntent)
@@ -185,21 +186,32 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
     }
     //**********************************************************************************************
 
-        suspectButton.apply {
+    suspectButton.apply {
 
-            val pickContactIntent =
-                Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+    val pickContactIntent = // Неявный интент, на запрос контакта из БД приложения Контакты через -
+          Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI) // Content Provider
 
             setOnClickListener {
                 startActivityForResult(pickContactIntent, REQUEST_CONTACT)
             }
 
-            val packageManager: PackageManager = requireActivity().packageManager
-            val resolvedActivity: ResolveInfo? =
-               packageManager.resolveActivity(pickContactIntent,
-                        PackageManager.MATCH_DEFAULT_ONLY)
+        /* PackageManager-у известно все о компонентах установленных на устройстве Android всключая
+            все его activity, content provider, broadcast, service.
+            Обьект ResolveInfo сообщает полную информацию о найденной активити
+         */
 
-            if (resolvedActivity == null) isEnabled = false
+            // Защита от отсутствия приложений адресной книги
+            val packageManager: PackageManager = requireActivity().packageManager
+
+
+            val resolvedActivity: ResolveInfo? =
+
+        // Вызывая resolveActivity вы приказываете найти активити соответсвующую переданному интенту
+         packageManager.resolveActivity(pickContactIntent,
+             PackageManager.MATCH_DEFAULT_ONLY) // флаг ограничевает поиск по CATEGORY_DEFAULT
+
+        // Если адресной книги нет - блокируем кнопку
+            if (resolvedActivity == null) isEnabled = true
 
         }
 
@@ -235,7 +247,8 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
             jumpDrawablesToCurrentState()
         }
 
-        if (crime.suspect.isNotBlank()) suspectButton.text = crime.suspect
+        // Если у преступления есть подозреваемый - отобрози его на кнопке
+        if (crime.suspect.isNotEmpty()) suspectButton.text = crime.suspect
 
     }
 
@@ -246,27 +259,28 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
 
 
 
+ /* Обращение к Content Provider осуществляется через Content Resolver.
+  */
 
-
-
-
+// Получение интента который включает URI данных - ссылку на конкретный контакт из адресной книги
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        when {
+        when {  // Подозреваемый не найден (не выбран в списке контактов)
             resultCode != Activity.RESULT_OK -> return
 
+     // Если мы получили результаты от нужной нам активити с контактами то их requestCode совпадут.
             requestCode == REQUEST_CONTACT && data != null -> {
 
-                val contactUri: Uri? = data.data
+                val contactUri: Uri? = data.data // указываем местонахождение данных в БД
 
-                // Указать для каких полей ваш запрос должен возвращать значения.
+     // Указать для каких полей ваш запрос должен возвращать значения (Вернет все имена контактов)
                 val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
 
                 // Выполняемый здесь запрос Uri похож на предложение "where"
-                val cursor = contactUri?.let {
-                    requireActivity().contentResolver
-                        .query(it, queryFields, null, null, null)
-                }
+                val cursor = requireActivity().contentResolver
+                        .query(contactUri!!, queryFields, null, null, null)
+
+
                 cursor?.use {
                     // Убедитесь, что курсор содержит хотя бы один результат
                     if (it.count == 0) return
@@ -275,6 +289,8 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
                     // Первый столбец первой строки данных это имя вашего подозреваемого
                     it.moveToFirst()
                     val suspect = it.getString(0)
+
+                    // Сохраняем данные о подозреваемом в БД, и выводим на кнопке
                     crime.suspect = suspect
                     crimeDetailViewModel.saveCrime(crime)
                     suspectButton.text = suspect
@@ -294,22 +310,22 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
 
 
 
-
+// Функция создает четыре строки, соединяяет и возвращает полный отчет о преступлени.
     private fun getCrimeReport (): String {
 
-        //
+        // Раскрыто ли преступление ?
         val solvedString = if (crime.isSolved) getString(R.string.crime_report_solved)
                             else (R.string.crime_report_unsolved)
 
-        //
+        // Получаем дату в выше опреленном формате
         val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
 
-        //
+        // Имя подозреваемого , есле оно не пусто
         val suspect = if (crime.suspect.isBlank()) getString(R.string.crime_report_no_suspect)
-                        else getString(R.string.crime_report_suspect)
+                        else getString(R.string.crime_report_suspect, crime.suspect)
 
 
-        //
+        // Форматная строка, заголовок преступления, дата, раскрыто ли, имя подозреваемого.
         return getString(R.string.crime_report, crime.title, dateString, solvedString , suspect)
 
     }

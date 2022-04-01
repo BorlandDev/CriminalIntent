@@ -37,8 +37,9 @@ class CrimeRepository private constructor (context: Context) {
 
         context.applicationContext, // Для обращения к файловой системе нужен контекст всего приложения
         CrimeDatabase::class.java,  // Ссылка на класс базы которую Room должен создать
-        DATABASE_NAME               // Имя базы
-   ).addMigrations(migration_1_2).build()
+        DATABASE_NAME) // Имя базы
+
+   .addMigrations(migration_1_2).build() // Выполняем миграцию
 
 
        // Репозиторий вызывает функции через интерфейс crimeDao

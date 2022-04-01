@@ -15,19 +15,21 @@ import com.bignerdranch.android.criminal_intent.Crime
 abstract class CrimeDatabase : RoomDatabase() {
 
 
-    /* создаем экземпляр Dao , Room будет сам генерировать конкретную реализацию
-        (SQL запоросов, функций интерфейса)
-    */
+    /* Создаем экземпляр Dao , Room будет сам генерировать конкретную реализацию
+        (SQL запоросов, функций интерфейса) */
+
 abstract fun crimeDao(): CrimeDao
 
 }
 
-                // Синглтон
+                // Создаем обьект Миграции который будет синглтоном
 val migration_1_2 = object : Migration(1,2) {
+
+    // используем параметр SupportSQLiteDatabase, для выполнения любых SQL-команд
     override fun migrate (database: SupportSQLiteDatabase) {
         database.execSQL(
             " ALTER TABLE Crime ADD COLUMN suspect TEXT NOT NULL DEFAULT '' "
-        )
+        )       // Команда ALTER TABLE добавляет новый столбец в таблицу
     }
 }
 
