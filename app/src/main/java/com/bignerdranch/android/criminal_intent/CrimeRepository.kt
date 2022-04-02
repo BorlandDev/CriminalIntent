@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import database.CrimeDatabase
 import database.migration_1_2
+import java.io.File
 import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.Executors
@@ -48,6 +49,7 @@ class CrimeRepository private constructor (context: Context) {
     private val  crimeDao = database.crimeDao()
                          // Функция вернет экземпляр исполнителся указывющий на новый поток
     private val executor = Executors.newSingleThreadExecutor()
+    private val filesDir = context.applicationContext.filesDir
 
 
       /* Как updateCrime так и addCrime оборачивают вызовы в Dao внутри блока execute{ }.
@@ -67,6 +69,10 @@ class CrimeRepository private constructor (context: Context) {
     fun addCrime (crime: Crime) {
         executor.execute { crimeDao.addCrime(crime) }
     }
+
+    fun getPhotoFile(crime: Crime): File = File(filesDir, crime.photoFileName)
+
+
 
 
     /* Синглтон - его единственный экз, живет пока приложение находится в памяти. Он не подходит для
