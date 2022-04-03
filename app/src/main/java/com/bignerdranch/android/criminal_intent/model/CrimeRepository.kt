@@ -1,10 +1,10 @@
-package com.bignerdranch.android.criminal_intent
+package com.bignerdranch.android.criminal_intent.model
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import database.CrimeDatabase
-import database.migration_1_2
+import com.bignerdranch.android.criminal_intent.database.CrimeDatabase
+import com.bignerdranch.android.criminal_intent.database.migration_1_2
 import java.io.File
 import java.lang.IllegalStateException
 import java.util.*
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors
 
  */
 
-private const val DATABASE_NAME = "crime-database"
+private const val DATABASE_NAME = "crime-com.bignerdranch.android.criminal_intent.database"
 
                      // контекст - экзмепляр приложения (пока живо приложение - жив обьект)
 class CrimeRepository private constructor (context: Context) {
@@ -49,6 +49,8 @@ class CrimeRepository private constructor (context: Context) {
     private val  crimeDao = database.crimeDao()
                          // Функция вернет экземпляр исполнителся указывющий на новый поток
     private val executor = Executors.newSingleThreadExecutor()
+
+                         // получаем ссылку на каталог файловой системы нашего приложения
     private val filesDir = context.applicationContext.filesDir
 
 
@@ -69,7 +71,7 @@ class CrimeRepository private constructor (context: Context) {
     fun addCrime (crime: Crime) {
         executor.execute { crimeDao.addCrime(crime) }
     }
-
+                // возвращаем фото из указанного каталога файловой системы
     fun getPhotoFile(crime: Crime): File = File(filesDir, crime.photoFileName)
 
 

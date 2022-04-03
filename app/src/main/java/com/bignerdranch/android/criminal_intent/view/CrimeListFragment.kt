@@ -1,4 +1,4 @@
-package com.bignerdranch.android.criminal_intent
+package com.bignerdranch.android.criminal_intent.view
 
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +11,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import view_models.CrimeListViewModel
+import com.bignerdranch.android.criminal_intent.model.Crime
+import com.bignerdranch.android.criminal_intent.R
+import com.bignerdranch.android.criminal_intent.model.CrimeListViewModel
 import java.util.*
 
 

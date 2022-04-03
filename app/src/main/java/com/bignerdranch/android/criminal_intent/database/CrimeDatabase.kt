@@ -1,12 +1,11 @@
-package database
+package com.bignerdranch.android.criminal_intent.database
 
-import android.app.appsearch.Migrator
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.bignerdranch.android.criminal_intent.Crime
+import com.bignerdranch.android.criminal_intent.model.Crime
 
             // Указываем какие сущности использовать Базе и начальную версию
 @Database (entities = [Crime::class], version = 2)

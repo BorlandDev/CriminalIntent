@@ -1,8 +1,9 @@
 package com.bignerdranch.android.criminal_intent
 
 import android.app.Application
+import com.bignerdranch.android.criminal_intent.model.CrimeRepository
 
-    // это экземпляр (обьект всего приложения) его Instance
+// это экземпляр (обьект всего приложения) его Instance
 class CriminalIntentApplication: Application() {
 
     // вызывается системой когда приложение впервые загружается в память.

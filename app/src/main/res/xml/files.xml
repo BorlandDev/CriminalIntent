@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<paths>
 
-    <file-path name= "crime_photos" path="." />
+<paths> xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <files-path
+        name="crime_photos"
+        path="."/>
 
 </paths>

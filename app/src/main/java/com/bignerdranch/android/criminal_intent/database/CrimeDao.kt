@@ -1,11 +1,11 @@
-package database
+package com.bignerdranch.android.criminal_intent.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.bignerdranch.android.criminal_intent.Crime
+import com.bignerdranch.android.criminal_intent.model.Crime
 import java.util.*
 
 // Обьект для взаимодействий с таблицми БД (обновление, чтение, удаление, вставка)

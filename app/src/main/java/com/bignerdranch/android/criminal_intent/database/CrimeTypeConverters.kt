@@ -1,4 +1,4 @@
-package database
+package com.bignerdranch.android.criminal_intent.database
 
 import androidx.room.TypeConverter
 import java.util.Date

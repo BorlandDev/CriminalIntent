@@ -2,6 +2,8 @@ package com.bignerdranch.android.criminal_intent
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.bignerdranch.android.criminal_intent.view.CrimeFragment
+import com.bignerdranch.android.criminal_intent.view.CrimeListFragment
 import java.util.*
 
 private const val TAG = "MainActivity"

@@ -1,4 +1,4 @@
-package com.bignerdranch.android.criminal_intent
+package com.bignerdranch.android.criminal_intent.view
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -18,10 +18,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import java.util.*
 import androidx.lifecycle.Observer
-import view_models.CrimeDetailViewModel
+import com.bignerdranch.android.criminal_intent.model.CrimeDetailViewModel
 import android.text.format.DateFormat
 import android.widget.*
 import androidx.core.content.FileProvider
+import com.bignerdranch.android.criminal_intent.model.Crime
+import com.bignerdranch.android.criminal_intent.R
 import java.io.File
 
 private const val TAG = "CrimeFragment"
@@ -36,7 +38,7 @@ private const val DATE_FORMAT = "EEE, MMM, dd"
 class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
 
     private lateinit var crime: Crime  // Храним преступления
-    private lateinit var photoFile: File
+    private lateinit var photoFile: File // ссылка на местонахождение файла фотографии
     private lateinit var photoUri: Uri
 
     private lateinit var titleField: EditText // Заголовок преступления
@@ -67,7 +69,7 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
      }
 
 
-
+    // аналог setContentView, настраивает и возвращает готовую верстку экрана
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -102,10 +104,12 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
 
                 crime?.let {
                     this.crime = crime
-
+                                                    // вернет местонахождение снимка
                     photoFile = crimeDetailViewModel.getPhotoFile(crime)
+
+            // Функция преобразует локальный путь к файлу в Uri, который видит приложение камеры.
                     photoUri = FileProvider.getUriForFile(requireActivity(),
-                            "com.bignerdranch.criminalintent.fileprovider" , photoFile)
+                            "com.bignerdranch.android.criminal_intent.fileprovider" , photoFile)
 
                     updateUI()
                 }
@@ -218,9 +222,7 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
             // Защита от отсутствия приложений адресной книги
             val packageManager: PackageManager = requireActivity().packageManager
 
-
             val resolvedActivity: ResolveInfo? =
-
         // Вызывая resolveActivity вы приказываете найти активити соответсвующую переданному интенту
          packageManager.resolveActivity(pickContactIntent,
              PackageManager.MATCH_DEFAULT_ONLY) // флаг ограничевает поиск по CATEGORY_DEFAULT
@@ -232,17 +234,23 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
        //*******************************************************************************************
 
         photoButton.apply {
-
+       // Блокируем кнопку при отсутсвии приложения камеры или недоступности места хранения снимков
             val packageManager: PackageManager = requireActivity().packageManager
-
             val captureImage = Intent (MediaStore.ACTION_IMAGE_CAPTURE)
 
             val resolvedActivity: ResolveInfo? =
                     packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
 
             if (resolvedActivity == null) isEnabled = false
+            // ***********************************************
 
-            setOnClickListener {
+            /* Что бы запрашивать photo uri мы должны предоставить разрешение приложению камеры.
+        Для этого мы устанавливаем флаг Intent.FLAG_GRANT_WRITE_URI_PERMISSION, для каждой активити,
+        которую может обрабатывать интент cameraImage. Так мы предоставляяем им всем разрешение на
+        запись специально для этого uri.
+             */
+
+            setOnClickListener {     // кладем инфо о местонахождении снимка
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
 
             val cameraActivities: List<ResolveInfo> =
@@ -289,6 +297,15 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
     }
 
 
+    override fun onDetach() {
+        super.onDetach()
+
+        requireActivity().revokeUriPermission(photoUri,
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+    }
+
+
 
     private fun updateUI () {
 
@@ -302,7 +319,23 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
         // Если у преступления есть подозреваемый - отобрози его на кнопке
         if (crime.suspect.isNotEmpty()) suspectButton.text = crime.suspect
 
+        updatePhotoView()
     }
+
+
+
+
+
+    private fun updatePhotoView () {
+
+        if (photoFile.exists()) {
+            val bitmap = getScaleBitmap(photoFile.path, requireActivity())
+            photoView.setImageBitmap(bitmap)
+        }
+        else photoView.setImageBitmap(null)
+    }
+
+
 
 
 
@@ -347,6 +380,12 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
                     crimeDetailViewModel.saveCrime(crime)
                     suspectButton.text = suspect
                 }
+            }
+
+            requestCode == REQUEST_PHOTO -> {
+                requireActivity().revokeUriPermission(photoUri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    updatePhotoView()
             }
         }
     }

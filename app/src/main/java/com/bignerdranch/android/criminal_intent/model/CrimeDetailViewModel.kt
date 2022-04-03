@@ -1,11 +1,9 @@
-package view_models
+package com.bignerdranch.android.criminal_intent.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.bignerdranch.android.criminal_intent.Crime
-import com.bignerdranch.android.criminal_intent.CrimeRepository
 import java.io.File
 import java.util.*
 
@@ -38,6 +36,7 @@ class CrimeDetailViewModel: ViewModel() {
         crimeRepository.updateCrime(crime)
     }
 
+    // Выдает информацию о файле для Crime Fragment
     fun getPhotoFile (crime: Crime): File {
         return crimeRepository.getPhotoFile(crime)
     }
