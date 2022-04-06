@@ -264,17 +264,8 @@ class CrimeFragment: Fragment() , DatePickerFragment.Callbacks{
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             }
                 startActivityForResult(captureImage, REQUEST_PHOTO)
-
-
-
-
             }
-
-
         }
-
-
-
     }
 
 
